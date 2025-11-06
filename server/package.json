@@ -14,5 +14,10 @@
     "mysql": "^2.18.1",
     "restify": "^9.1.0",
     "restify-eventsource": "^2.0.0"
+  },
+  
+  "engines": {
+    "node": "20.x"
   }
+
 }
