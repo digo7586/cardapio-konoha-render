@@ -1,0 +1,18 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "cardapio com painel",
+  "license": "ISC",
+  "author": "Diego",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "restify": "^9.1.0",
+    "restify-eventsource": "^2.0.0"
+  }
+}
