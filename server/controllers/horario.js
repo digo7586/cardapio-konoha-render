@@ -1,3 +1,5 @@
+process.env.TZ = 'America/Sao_Paulo';
+
 const AcessoDados = require('../db/acessodados.js');
 const db = new AcessoDados();
 const ReadCommandSql = require('../common/readCommandSql.js');
@@ -6,6 +8,9 @@ const UsuarioTokenAcesso = require('../common/protecaoAcesso');
 const Acesso = new UsuarioTokenAcesso();
 
 const controllers = () => {
+
+    const agora = new Date();
+console.log('Hora atual do servidor:', agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
 
     // obtem os horários de funcionamento da empresa
     const obterHorarios = async (req) => {
