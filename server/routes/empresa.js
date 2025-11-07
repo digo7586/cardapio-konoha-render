@@ -13,25 +13,26 @@ module.exports = (server) => {
         res.send(result);
     });
 
-    // ✅ ROTA PÚBLICA - SEM AUTENTICAÇÃO
-    // retorna se a empresa está aberta ou não
+    // ✅ ROTA PÚBLICA - SEM AUTENTICAÇÃO (VERSÃO CORRIGIDA)
     server.get('/empresa/open', async (req, res) => {
         try {
             const db = new AcessoDados();
             const readCommandSql = new ReadCommandSql();
             
-            // Busca horários (idempresa = 1 fixo, pois você tem só uma empresa)
+            // Busca horários (idempresa = 1 fixo)
             const sql = await readCommandSql.retornaStringSql('obterHorarios', 'horario');
             const horarios = await db.Query(sql, { idempresa: 1, ignoreAtivo: 1 });
             
             if (!horarios || horarios.length === 0) {
+                console.log('[OPEN] Nenhum horário cadastrado');
                 return res.send({ status: 'error', message: 'Estabelecimento fechado.', data: false });
             }
             
             const agora = moment().tz('America/Sao_Paulo');
             const diaSemana = agora.day(); // 0..6 (domingo = 0, segunda = 1, etc)
+            const horaAtual = agora.format('HH:mm');
             
-            console.log(`[OPEN] Dia da semana: ${diaSemana}, Hora: ${agora.format('HH:mm')}`);
+            console.log(`[OPEN] Dia: ${diaSemana}, Hora: ${horaAtual}`);
             
             // Monta lista de dias cobertos
             const listaDias = [];
@@ -41,6 +42,7 @@ module.exports = (server) => {
                 const fim = Number(e.diafim);
                 
                 if (ini <= fim) {
+                    // Intervalo normal (ex: segunda(1) até sexta(5))
                     for (let d = ini; d <= fim; d++) {
                         listaDias.push({
                             diaSemana: d,
@@ -76,26 +78,17 @@ module.exports = (server) => {
             const slotHoje = listaDias.filter(x => x.diaSemana === diaSemana);
             
             if (slotHoje.length === 0) {
-                console.log('[OPEN] Nenhum horário configurado para hoje');
+                console.log('[OPEN] Nenhum horário para hoje');
                 return res.send({ status: 'error', message: 'Estabelecimento fechado.', data: false });
             }
             
-            const now = agora.hours() * 60 + agora.minutes(); // minutos desde meia-noite
-            
-            const toMinutes = (str) => {
-                if (!str) return null;
-                const [hh, mm] = str.split(':');
-                return Number(hh) * 60 + Number(mm);
-            };
-            
+            // Verifica se está dentro de algum dos períodos
             const aberto = slotHoje.some(s => {
-                const i1 = toMinutes(s.iniciohorarioum);
-                const f1 = toMinutes(s.fimhorarioum);
-                const i2 = toMinutes(s.iniciohorariodois);
-                const f2 = toMinutes(s.fimhorariodois);
+                const ok1 = (s.iniciohorarioum && s.fimhorarioum && 
+                           horaAtual >= s.iniciohorarioum && horaAtual <= s.fimhorarioum);
                 
-                const ok1 = (i1 != null && f1 != null && now >= i1 && now <= f1);
-                const ok2 = (i2 != null && f2 != null && now >= i2 && now <= f2);
+                const ok2 = (s.iniciohorariodois && s.fimhorariodois && 
+                           horaAtual >= s.iniciohorariodois && horaAtual <= s.fimhorariodois);
                 
                 console.log(`[OPEN] P1: ${s.iniciohorarioum}-${s.fimhorarioum} (${ok1}), P2: ${s.iniciohorariodois}-${s.fimhorariodois} (${ok2})`);
                 
