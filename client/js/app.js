@@ -229,7 +229,7 @@ app.method = {
     },
 
     // valida se a empresa está aberta
-    validarEmpresaAberta: (home = false) => {
+   /*  validarEmpresaAberta: (home = false) => {
 
         app.method.loading(true);
 
@@ -274,7 +274,80 @@ app.method = {
             }, true
         )
 
-    },
+    }, */
+
+
+    validarEmpresaAberta: (home = false) => {
+
+    app.method.loading(true);
+
+    // ✅ MUDANÇA 1: Troca /empresa/open por /api/horario
+    // ✅ MUDANÇA 2: Remove o parâmetro "true" (não precisa autenticação)
+    // ✅ MUDANÇA 3: Usa XMLHttpRequest direto (sem método get que exige token)
+    
+    try {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/horario');  // ✅ Rota pública nova
+        xhr.setRequestHeader("Content-Type", 'application/json;charset=utf-8');
+        // ✅ NÃO adiciona Authorization header!
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                app.method.loading(false);
+
+                if (this.status == 200) {
+                    const response = JSON.parse(xhr.responseText);
+
+                    // Se estiver na tela principal do cardápio
+                    if (home) {
+                        document.querySelector(".status-open").classList.remove('hidden');
+                    }
+
+                    // ✅ MUDANÇA 4: Verifica o campo "aberto" em vez de "status"
+                    if (response.status == "error" || !response.aberto) {
+
+                        // Altera o label de Aberto/Fechado
+                        if (home) {
+                            document.querySelector(".status-open").classList.add('closed');
+                            document.querySelector("#lblLojaAberta").innerText = 'Fechado';
+                        }
+
+                        // Exibe o menu de loja fechada
+                        document.querySelector("#menu-bottom").remove();
+                        document.querySelector("#menu-bottom-closed").classList.remove('hidden');
+                        return;
+                    }
+
+                    // Loja está aberta
+                    if (home) {
+                        document.querySelector(".status-open").classList.remove('closed');
+                        document.querySelector("#lblLojaAberta").innerText = 'Aberto';
+                    }
+
+                    document.querySelector("#menu-bottom").classList.remove('hidden');
+                    document.querySelector("#menu-bottom-closed").remove();
+
+                } else {
+                    // Erro na requisição - assume loja fechada
+                    if (home) {
+                        document.querySelector(".status-open").classList.remove('hidden');
+                        document.querySelector(".status-open").classList.add('closed');
+                        document.querySelector("#lblLojaAberta").innerText = 'Fechado';
+                    }
+                    document.querySelector("#menu-bottom").remove();
+                    document.querySelector("#menu-bottom-closed").classList.remove('hidden');
+                }
+            }
+        };
+
+        xhr.send();
+
+    } catch (ex) {
+        console.error('Erro ao verificar horário:', ex);
+        app.method.loading(false);
+    }
+
+},
 
     // carregar empresa
     carregarDadosEmpresa: () => {
