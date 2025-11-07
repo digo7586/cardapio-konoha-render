@@ -26,7 +26,7 @@ module.exports = (server) => {
 const UsuarioTokenAcesso = require('../common/protecaoAcesso');
 const Acesso = new UsuarioTokenAcesso();
 const AcessoDados = require('../db/acessodados.js');
-const db = new AcessoDados();
+const ReadCommandSql = require('../common/readCommandSql.js');
 
 module.exports = (server) => {
 
@@ -43,7 +43,7 @@ module.exports = (server) => {
     });
 
     // ========================================
-    // NOVA ROTA PÚBLICA - SEM AUTENTICAÇÃO
+    // ROTA PÚBLICA - SEM AUTENTICAÇÃO
     // ========================================
     
     // GET - Verificar se está aberto agora (PÚBLICO)
@@ -53,7 +53,8 @@ module.exports = (server) => {
             process.env.TZ = 'America/Sao_Paulo';
             
             const agora = new Date();
-            const diaSemana = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][agora.getDay()];
+            const diaSemanaArray = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+            const diaSemana = diaSemanaArray[agora.getDay()];
             const horaAtual = agora.toLocaleTimeString('pt-BR', { 
                 timeZone: 'America/Sao_Paulo',
                 hour: '2-digit', 
@@ -61,35 +62,56 @@ module.exports = (server) => {
                 hour12: false 
             });
             
-            console.log(`[HORÁRIO] Dia: ${diaSemana}, Hora: ${horaAtual}`);
+            console.log(`[HORÁRIO] Verificando: ${diaSemana} às ${horaAtual}`);
             
-            // Busca horário no banco (sem precisar de empresa específica - pega a primeira)
-            const horarios = await db.Query(
-                `SELECT * FROM horario WHERE dia_semana = ? LIMIT 1`,
-                { dia_semana: diaSemana }
-            );
+            // ✅ Usar o sistema de ReadCommandSql do projeto
+            const db = new AcessoDados();
+            const readCommandSql = new ReadCommandSql();
             
-            if (!horarios || horarios.length === 0) {
-                console.log(`[HORÁRIO] Nenhum horário cadastrado para ${diaSemana}`);
+            // Busca o SQL correto do arquivo
+            let ComandoSQL = await readCommandSql.retornaStringSql('obterHorarios', 'horario');
+            
+            console.log('[HORÁRIO] SQL:', ComandoSQL);
+            
+            // Executa a query (sem precisar de idempresa, usa ignoreAtivo = 1)
+            let result = await db.Query(ComandoSQL, { idempresa: 1, ignoreAtivo: 1 });
+            
+            console.log('[HORÁRIO] Dados retornados:', JSON.stringify(result));
+            
+            if (!result || result.length === 0) {
+                console.log(`[HORÁRIO] Nenhum horário cadastrado`);
                 return res.send({
                     status: 'error',
                     message: 'Falha ao validar horário.',
+                    data: false,
+                    aberto: false
+                });
+            }
+            
+            // Encontra o horário do dia atual
+            const horarioDia = result.find(h => h.dia_semana.toLowerCase() === diaSemana.toLowerCase());
+            
+            if (!horarioDia) {
+                console.log(`[HORÁRIO] Nenhum horário configurado para ${diaSemana}`);
+                return res.send({
+                    status: 'error',
+                    message: 'Falha ao validar horário.',
+                    data: false,
                     aberto: false,
                     dia: diaSemana,
                     horaAtual
                 });
             }
             
-            const h = horarios[0];
-            console.log(`[HORÁRIO] P1: ${h.horario_abertura_1} - ${h.horario_fechamento_1}`);
-            console.log(`[HORÁRIO] P2: ${h.horario_abertura_2} - ${h.horario_fechamento_2}`);
+            console.log(`[HORÁRIO] P1: ${horarioDia.horario_abertura_1} - ${horarioDia.horario_fechamento_1}`);
+            console.log(`[HORÁRIO] P2: ${horarioDia.horario_abertura_2} - ${horarioDia.horario_fechamento_2}`);
             
             // Verifica se está dentro de algum período
-            const periodo1 = h.horario_abertura_1 && h.horario_fechamento_1 && 
-                           horaAtual >= h.horario_abertura_1 && horaAtual <= h.horario_fechamento_1;
+            const periodo1 = horarioDia.horario_abertura_1 && horarioDia.horario_fechamento_1 && 
+                           horaAtual >= horarioDia.horario_abertura_1 && horaAtual <= horarioDia.horario_fechamento_1;
             
-            const periodo2 = h.horario_abertura_2 && h.horario_fechamento_2 && 
-                           horaAtual >= h.horario_abertura_2 && horaAtual <= h.horario_fechamento_2;
+            const periodo2 = horarioDia.horario_abertura_2 && horarioDia.horario_fechamento_2 && 
+                           horaAtual >= horarioDia.horario_abertura_2 && horaAtual <= horarioDia.horario_fechamento_2;
             
             const aberto = periodo1 || periodo2;
             
@@ -104,13 +126,13 @@ module.exports = (server) => {
                 horaAtual,
                 debug: {
                     periodo1: {
-                        abertura: h.horario_abertura_1,
-                        fechamento: h.horario_fechamento_1,
+                        abertura: horarioDia.horario_abertura_1,
+                        fechamento: horarioDia.horario_fechamento_1,
                         dentro: periodo1
                     },
                     periodo2: {
-                        abertura: h.horario_abertura_2,
-                        fechamento: h.horario_fechamento_2,
+                        abertura: horarioDia.horario_abertura_2,
+                        fechamento: horarioDia.horario_fechamento_2,
                         dentro: periodo2
                     }
                 }
@@ -121,6 +143,8 @@ module.exports = (server) => {
             res.send({
                 status: 'error',
                 message: 'Falha ao validar horário.',
+                data: false,
+                aberto: false,
                 error: error.message
             });
         }
