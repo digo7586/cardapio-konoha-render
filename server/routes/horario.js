@@ -1,28 +1,4 @@
-/* const ct = require('../controllers/horario')
-const UsuarioTokenAcesso = require('../common/protecaoAcesso');
-const Acesso = new UsuarioTokenAcesso();
-
-module.exports = (server) => {
-
-    // obtem os horários de funcionamento da empresa
-    server.get('/empresa/horario', async (req, res) => {
-        
-        const result = await ct.controllers().obterHorarios(req);
-        res.send(result);
-    });
-
-     // salva os horários de funcionamento da empresa
-     server.post('/empresa/horario', Acesso.verificaTokenAcesso, async (req, res) => {
-        const result = await ct.controllers().salvarHorarios(req);
-        res.send(result);
-    });
-
-} */
-
-
-
-
-    const ct = require('../controllers/horario');
+const ct = require('../controllers/horario');
 const UsuarioTokenAcesso = require('../common/protecaoAcesso');
 const Acesso = new UsuarioTokenAcesso();
 const AcessoDados = require('../db/acessodados.js');
@@ -53,8 +29,8 @@ module.exports = (server) => {
             process.env.TZ = 'America/Sao_Paulo';
             
             const agora = new Date();
-            const diaSemanaArray = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-            const diaSemana = diaSemanaArray[agora.getDay()];
+            const diasSemanaArray = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+            const diaAtual = diasSemanaArray[agora.getDay()];
             const horaAtual = agora.toLocaleTimeString('pt-BR', { 
                 timeZone: 'America/Sao_Paulo',
                 hour: '2-digit', 
@@ -62,9 +38,9 @@ module.exports = (server) => {
                 hour12: false 
             });
             
-            console.log(`[HORÁRIO] Verificando: ${diaSemana} às ${horaAtual}`);
+            console.log(`[HORÁRIO] Verificando: ${diaAtual} às ${horaAtual}`);
             
-            // ✅ Usar o sistema de ReadCommandSql do projeto
+            // Usar o sistema de ReadCommandSql do projeto
             const db = new AcessoDados();
             const readCommandSql = new ReadCommandSql();
             
@@ -73,7 +49,7 @@ module.exports = (server) => {
             
             console.log('[HORÁRIO] SQL:', ComandoSQL);
             
-            // Executa a query (sem precisar de idempresa, usa ignoreAtivo = 1)
+            // Executa a query (idempresa = 1 porque você tem só uma empresa)
             let result = await db.Query(ComandoSQL, { idempresa: 1, ignoreAtivo: 1 });
             
             console.log('[HORÁRIO] Dados retornados:', JSON.stringify(result));
@@ -88,30 +64,55 @@ module.exports = (server) => {
                 });
             }
             
-            // Encontra o horário do dia atual
-            const horarioDia = result.find(h => h.dia_semana.toLowerCase() === diaSemana.toLowerCase());
+            // ✅ LÓGICA CORRIGIDA: Verificar se o dia atual está dentro de algum intervalo
+            let horarioValido = null;
             
-            if (!horarioDia) {
-                console.log(`[HORÁRIO] Nenhum horário configurado para ${diaSemana}`);
+            for (const horario of result) {
+                const diaInicio = horario.diainicio.toLowerCase();
+                const diaFim = horario.diafim.toLowerCase();
+                const diaAtualIndex = diasSemanaArray.indexOf(diaAtual);
+                const diaInicioIndex = diasSemanaArray.indexOf(diaInicio);
+                const diaFimIndex = diasSemanaArray.indexOf(diaFim);
+                
+                // Verifica se o dia atual está dentro do intervalo
+                let dentroDointervalo = false;
+                
+                if (diaInicioIndex <= diaFimIndex) {
+                    // Intervalo normal (ex: segunda a sexta)
+                    dentroDointervalo = diaAtualIndex >= diaInicioIndex && diaAtualIndex <= diaFimIndex;
+                } else {
+                    // Intervalo que cruza a semana (ex: sábado a segunda)
+                    dentroDointervalo = diaAtualIndex >= diaInicioIndex || diaAtualIndex <= diaFimIndex;
+                }
+                
+                if (dentroDointervalo) {
+                    horarioValido = horario;
+                    break;
+                }
+            }
+            
+            if (!horarioValido) {
+                console.log(`[HORÁRIO] Nenhum horário configurado para ${diaAtual}`);
                 return res.send({
                     status: 'error',
                     message: 'Falha ao validar horário.',
                     data: false,
                     aberto: false,
-                    dia: diaSemana,
+                    dia: diaAtual,
                     horaAtual
                 });
             }
             
-            console.log(`[HORÁRIO] P1: ${horarioDia.horario_abertura_1} - ${horarioDia.horario_fechamento_1}`);
-            console.log(`[HORÁRIO] P2: ${horarioDia.horario_abertura_2} - ${horarioDia.horario_fechamento_2}`);
+            console.log(`[HORÁRIO] Intervalo encontrado: ${horarioValido.diainicio} a ${horarioValido.diafim}`);
+            console.log(`[HORÁRIO] P1: ${horarioValido.iniciohorarioum} - ${horarioValido.fimhorarioum}`);
+            console.log(`[HORÁRIO] P2: ${horarioValido.iniciohorariodois} - ${horarioValido.fimhorariodois}`);
             
             // Verifica se está dentro de algum período
-            const periodo1 = horarioDia.horario_abertura_1 && horarioDia.horario_fechamento_1 && 
-                           horaAtual >= horarioDia.horario_abertura_1 && horaAtual <= horarioDia.horario_fechamento_1;
+            const periodo1 = horarioValido.iniciohorarioum && horarioValido.fimhorarioum && 
+                           horaAtual >= horarioValido.iniciohorarioum && horaAtual <= horarioValido.fimhorarioum;
             
-            const periodo2 = horarioDia.horario_abertura_2 && horarioDia.horario_fechamento_2 && 
-                           horaAtual >= horarioDia.horario_abertura_2 && horaAtual <= horarioDia.horario_fechamento_2;
+            const periodo2 = horarioValido.iniciohorariodois && horarioValido.fimhorariodois && 
+                           horaAtual >= horarioValido.iniciohorariodois && horaAtual <= horarioValido.fimhorariodois;
             
             const aberto = periodo1 || periodo2;
             
@@ -122,17 +123,21 @@ module.exports = (server) => {
                 message: aberto ? 'Loja aberta' : 'Falha ao validar horário.',
                 data: aberto,
                 aberto,
-                dia: diaSemana,
+                dia: diaAtual,
                 horaAtual,
                 debug: {
+                    intervalo: {
+                        inicio: horarioValido.diainicio,
+                        fim: horarioValido.diafim
+                    },
                     periodo1: {
-                        abertura: horarioDia.horario_abertura_1,
-                        fechamento: horarioDia.horario_fechamento_1,
+                        abertura: horarioValido.iniciohorarioum,
+                        fechamento: horarioValido.fimhorarioum,
                         dentro: periodo1
                     },
                     periodo2: {
-                        abertura: horarioDia.horario_abertura_2,
-                        fechamento: horarioDia.horario_fechamento_2,
+                        abertura: horarioValido.iniciohorariodois,
+                        fechamento: horarioValido.fimhorariodois,
                         dentro: periodo2
                     }
                 }
