@@ -259,12 +259,12 @@ const controllers = () => {
                     })
                 )
 
-                var hash = new Date().getTime() + '' + novoPedido.insertId;
+                /* var hash = new Date().getTime() + '' + novoPedido.insertId; */
 
                 return {
                     status: 'success',
                     message: 'Pedido realizado!',
-                    order: hash
+                    order: novoPedido.insertId // <--- Só o id do pedido
                 }
 
             }
