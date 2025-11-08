@@ -2,9 +2,9 @@
 
 INSERT INTO
     pedido
-(idpedidostatus, idtipoentrega, idtaxaentrega, idformapagamento, troco, total, cep, endereco, numero, bairro, complemento, cidade, estado, nomecliente, telefonecliente)
+(idpedidostatus, idtipoentrega, idtaxaentrega, idformapagamento, troco, total, cep, endereco, numero, bairro, complemento, cidade, estado, nomecliente, telefonecliente, datacadastro)
     VALUES
-(@idpedidostatus, @idtipoentrega, @idtaxaentrega, @idformapagamento, @troco, @total, @cep, @endereco, @numero, @bairro, @complemento, @cidade, @estado, @nomecliente, @telefonecliente)
+(@idpedidostatus, @idtipoentrega, @idtaxaentrega, @idformapagamento, @troco, @total, @cep, @endereco, @numero, @bairro, @complemento, @cidade, @estado, @nomecliente, @telefonecliente, @datacadastro)
 
 --END#salvarPedido#
 
