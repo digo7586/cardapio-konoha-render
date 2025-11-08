@@ -59,7 +59,18 @@ pedido.method = {
                     // primeiro, carrega o card principal do pedido
                     document.querySelector("#containerAcompanhamento").innerHTML = '';
 
-                    let datacadastro = new Date(response.data.datacadastro); // Ideal: deve vir com "-03:00" no fim!
+                    //let datacadastro = new Date(response.data.datacadastro); // Ideal: deve vir com "-03:00" no fim!
+                    let datacadastro = new Date(response.data.datacadastro);
+let dataFormatada = datacadastro.toLocaleString('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  hour12: false,
+  year: 'numeric', 
+  month: '2-digit', 
+  day: '2-digit', 
+  hour: '2-digit', 
+  minute: '2-digit'
+});
+// use dataFormatada no card e nos detalhes
                     let dataFormatada = datacadastro.getDate().toString().padStart(2, '0') + '/' + (datacadastro.getMonth() + 1).toString().padStart(2, '0');
                     let horarioFormatado = datacadastro.getHours().toString().padStart(2, '0') + ':' + datacadastro.getMinutes().toString().padStart(2, '0');
 
