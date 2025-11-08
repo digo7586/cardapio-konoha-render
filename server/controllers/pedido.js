@@ -1,3 +1,4 @@
+const moment = require('moment-timezone');
 const AcessoDados = require('../db/acessodados.js');
 const db = new AcessoDados();
 const ReadCommandSql = require('../common/readCommandSql.js');
@@ -214,7 +215,8 @@ const controllers = () => {
                 cidade: pedido.entrega ? pedido.endereco.cidade : null,
                 estado: pedido.entrega ? pedido.endereco.estado : null,
                 nomecliente: pedido.nomecliente,
-                telefonecliente: pedido.telefonecliente
+                telefonecliente: pedido.telefonecliente,
+                datacadastro: moment().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss')
             }
 
             console.log('dados', dados)
