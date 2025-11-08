@@ -60,16 +60,27 @@ pedido.method = {
                     document.querySelector("#containerAcompanhamento").innerHTML = '';
 
                     //let datacadastro = new Date(response.data.datacadastro); // Ideal: deve vir com "-03:00" no fim!
-                    let datacadastro = new Date(response.data.datacadastro);
-let dataFormatada = datacadastro.toLocaleString('pt-BR', {
-  timeZone: 'America/Sao_Paulo',
-  hour12: false,
-  year: 'numeric', 
-  month: '2-digit', 
-  day: '2-digit', 
-  hour: '2-digit', 
-  minute: '2-digit'
-});
+                    let dataFormatada = '';
+let horarioFormatado = '';
+
+try {
+  if (response.data && response.data.datacadastro) {
+    let datacadastro = new Date(response.data.datacadastro);
+    // Usa formato seguro para Brasil GMT-3
+    dataFormatada = datacadastro.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    horarioFormatado = datacadastro.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false });
+  } else {
+    dataFormatada = '-';
+    horarioFormatado = '--:--';
+  }
+} catch(e) {
+  dataFormatada = '-';
+  horarioFormatado = '--:--';
+}
+
+// Use para exibir no HTML (ajuste para seu seletor):
+// Exemplo:
+document.querySelector('#lblDataPedido').innerText = dataFormatada + ' às ' + horarioFormatado;
 // use dataFormatada no card e nos detalhes
                     let dataFormatada = datacadastro.getDate().toString().padStart(2, '0') + '/' + (datacadastro.getMonth() + 1).toString().padStart(2, '0');
                     let horarioFormatado = datacadastro.getHours().toString().padStart(2, '0') + ':' + datacadastro.getMinutes().toString().padStart(2, '0');
