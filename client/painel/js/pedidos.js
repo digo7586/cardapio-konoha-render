@@ -172,15 +172,17 @@ pedido.method = {
                 }
 
                 // formata a data e hora de recebimento
-            /* let datacadastro = e.datacadastro.split('T');
-                let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
-                let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];*/
+// let datacadastro = e.datacadastro.split('T');
+// let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+// let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
+
 
 let dataFormatada = '-';
 let horarioFormatado = '--:--';
 try {
-    if (data && data.datacadastro) {
-        let dt = new Date(data.datacadastro);
+    if (e && e.datacadastro) {
+        let dt = new Date(e.datacadastro);
+        // Ajusta para o fuso Brasil se vier UTC
         dt.setHours(dt.getHours() - 3);
         dataFormatada = dt.toLocaleDateString('pt-BR');
         horarioFormatado = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -190,9 +192,8 @@ try {
     horarioFormatado = '--:--';
 }
 
-
 datahora = `${dataFormatada} às ${horarioFormatado}`;
-
+                datahora = `${dataFormatada} às ${horarioFormatado}`;
 
                 let temp = pedido.template.card.replace(/\${idpedido}/g, e.idpedido)
                     .replace(/\${btnAcoes}/g, btnAcoes)
@@ -287,13 +288,14 @@ datahora = `${dataFormatada} às ${horarioFormatado}`;
     // carrega os dados da modal de detalhes
     carregarModalDetalhes: (data, idpedido, cart) => {
 
-      /*  let datacadastro = data.datacadastro.split('T');
-        let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
-        let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
 
-        document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
-*/
-        let dataFormatada = '-';
+        // Antes:
+// let datacadastro = data.datacadastro.split('T');
+// let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+// let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
+
+// Substituído para pegar o timeZone correto
+let dataFormatada = '-';
 let horarioFormatado = '--:--';
 try {
     if (data && data.datacadastro) {
@@ -308,7 +310,8 @@ try {
 }
 
 document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
-        
+        document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
+
         document.querySelector("#lblNomeCliente").innerText = data.nomecliente;
         document.querySelector("#lblTelefoneCliente").innerText = data.telefonecliente;
 
