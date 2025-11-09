@@ -172,10 +172,10 @@ pedido.method = {
                 }
 
                 // formata a data e hora de recebimento
-                let datacadastro = ...datacadastro.split('T');
-let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
-let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
-}
+                let datacadastro = e.datacadastro.split('T');
+                let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+                let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
+
                 datahora = `${dataFormatada} às ${horarioFormatado}`;
 
                 let temp = pedido.template.card.replace(/\${idpedido}/g, e.idpedido)
@@ -271,9 +271,9 @@ let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].spl
     // carrega os dados da modal de detalhes
     carregarModalDetalhes: (data, idpedido, cart) => {
 
-      let datacadastro = ...datacadastro.split('T');
-let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
-let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
+        let datacadastro = data.datacadastro.split('T');
+        let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+        let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
 
         document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
 
@@ -597,4 +597,4 @@ pedido.template = {
         </div>
     `
 
-}
+                    }
