@@ -172,17 +172,9 @@ pedido.method = {
                 }
 
                 // formata a data e hora de recebimento
-                let dataFormatada = '';
-let horarioFormatado = '';
-try {
-    let dataObj = new Date(e.datacadastro); // ou data.datacadastro conforme contexto
-    // Ajusta para GMT-3 (Brasília)
-    dataObj.setHours(dataObj.getHours() - 3);
-    dataFormatada = dataObj.toLocaleDateString('pt-BR');
-    horarioFormatado = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
-} catch(e) {
-    dataFormatada = '-';
-    horarioFormatado = '--:--';
+                let datacadastro = ...datacadastro.split('T');
+let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
 }
                 datahora = `${dataFormatada} às ${horarioFormatado}`;
 
