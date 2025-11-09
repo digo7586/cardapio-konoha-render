@@ -175,6 +175,7 @@ cardapio.method = {
 
                 let _imagem = e.imagem;
 
+                let descCorta = descricao.length > 45 ? descricao.slice(0, 45) + '...' : descricao;
                 if (e.imagem == null) {
                     _imagem = 'default.jpg';
                 }
@@ -286,7 +287,7 @@ cardapio.templates = {
                 <div class="container-img-produto" style="background-image: url('/public/images/\${imagem}'); background-size: cover;"></div>
                 <div class="infos-produto">
                     <p class="name"><b>\${nome}</b></p>
-                    <p class="description">${descricao.length > 45 ? descricao.slice(0, 45) + '...' : descricao}</p>
+                    <p class="description">${descCorta}</p>
                     <p class="price"><b>R$ \${valor}</b></p>
                 </div>
             </div>
