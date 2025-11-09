@@ -182,7 +182,7 @@ try {
     if (e && e.datacadastro) {
         let dt = new Date(e.datacadastro);
         // Ajusta para o fuso Brasil se vier UTC
-        dt.setHours(dt.getHours() - 3);
+        
         dataFormatada = dt.toLocaleDateString('pt-BR');
         horarioFormatado = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
