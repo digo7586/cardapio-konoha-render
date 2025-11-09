@@ -172,26 +172,32 @@ cardapio.method = {
         if (list.length > 0) {
 
             list.forEach((e, i) => {
-    let _imagem = e.imagem;
-    if (e.imagem == null) {
-        _imagem = 'default.jpg';
-    }
-    let descCorta = e.descricao && e.descricao.length > 45 ? e.descricao.slice(0, 45) + '...' : e.descricao || '';
 
-    const precoNum = Number(e.valor);
-    const precoFmt = Number.isFinite(precoNum) ? precoNum.toFixed(2).replace('.', ',') : '0,00';
+                let _imagem = e.imagem;
 
-    let temp = cardapio.templates.produto.replace(/${idproduto}/g, e.idproduto)
-        .replace(/${imagem}/g, _imagem)
-        .replace(/${nome}/g, e.nome || '')
-        .replace(/${descricao}/g, descCorta)
-        .replace(/${valor}/g, precoFmt);
+                if (e.imagem == null) {
+                    _imagem = 'default.jpg';
+                }
 
-    let categoriaHeader = document.querySelector("#categoria-header-" + e.idcategoria);
-    if (categoriaHeader) {
-        categoriaHeader.innerHTML += temp;
-    }
-});
+               const precoNum = Number(e.valor);
+const precoFmt = Number.isFinite(precoNum) ? precoNum.toFixed(2).replace('.', ',') : '0,00';
+
+                let temp = cardapio.templates.produto.replace(/\${idproduto}/g, e.idproduto)
+                .replace(/\${imagem}/g, _imagem)
+                .replace(/\${nome}/g, e.nome || '')
+                .replace(/\${descricao}/g, e.descricao || '')
+                .replace(/\${valor}/g, precoFmt);
+
+
+                // adiciona a categoria ao menu
+                let categoriaHeader = document.querySelector("#categoria-header-" + e.idcategoria);
+                if (categoriaHeader) {
+                    categoriaHeader.innerHTML += temp;
+                }
+
+
+            });
+
         }
 
     },
@@ -280,11 +286,11 @@ cardapio.templates = {
                 <div class="container-img-produto" style="background-image: url('/public/images/\${imagem}'); background-size: cover;"></div>
                 <div class="infos-produto">
                     <p class="name"><b>\${nome}</b></p>
-                    <p class="description">${descCorta}</p>
+                    
                     <p class="price"><b>R$ \${valor}</b></p>
                 </div>
             </div>
         </div>
     `
 
-    }
+            }
