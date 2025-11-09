@@ -271,25 +271,9 @@ pedido.method = {
     // carrega os dados da modal de detalhes
     carregarModalDetalhes: (data, idpedido, cart) => {
 
-    let dataFormatada = '';
-    let dataFormatada = '';
-let horarioFormatado = '';
-try {
-    if (data && data.datacadastro) {
-        // Cria o Date e ajusta -3 horas
-        let dataObj = new Date(data.datacadastro);
-        // Ajusta para GMT-3 manualmente
-        dataObj.setHours(dataObj.getHours() - 3);
-        dataFormatada = dataObj.toLocaleDateString('pt-BR');
-        horarioFormatado = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
-    } else {
-        dataFormatada = '-';
-        horarioFormatado = '--:--';
-    }
-} catch (e) {
-    dataFormatada = '-';
-    horarioFormatado = '--:--';
-        }
+    let datacadastro = data.datacadastro.split('T');
+let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
     document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
 
     document.querySelector("#lblNomeCliente").innerText = data.nomecliente;
