@@ -272,20 +272,24 @@ pedido.method = {
     carregarModalDetalhes: (data, idpedido, cart) => {
 
     let dataFormatada = '';
-    let horarioFormatado = '';
-    try {
-        if (data && data.datacadastro) {
-            let dataObj = new Date(data.datacadastro);
-            dataFormatada = dataObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            horarioFormatado = dataObj.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false });
-        } else {
-            dataFormatada = '-';
-            horarioFormatado = '--:--';
-        }
-    } catch (e) {
+    let dataFormatada = '';
+let horarioFormatado = '';
+try {
+    if (data && data.datacadastro) {
+        // Cria o Date e ajusta -3 horas
+        let dataObj = new Date(data.datacadastro);
+        // Ajusta para GMT-3 manualmente
+        dataObj.setHours(dataObj.getHours() - 3);
+        dataFormatada = dataObj.toLocaleDateString('pt-BR');
+        horarioFormatado = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+    } else {
         dataFormatada = '-';
         horarioFormatado = '--:--';
     }
+} catch (e) {
+    dataFormatada = '-';
+    horarioFormatado = '--:--';
+        }
     document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
 
     document.querySelector("#lblNomeCliente").innerText = data.nomecliente;
