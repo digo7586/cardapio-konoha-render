@@ -172,20 +172,12 @@ pedido.method = {
                 }
 
                 // formata a data e hora de recebimento
-                let dataObj = new Date(data.datacadastro);
+                let datacadastro = e.datacadastro.split('T');
+                let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
+                let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
 
-// Ajusta o fuso horário UTC → Brasília (-3h)
-dataObj.setHours(dataObj.getHours() - 3);
+                datahora = `${dataFormatada} às ${horarioFormatado}`;
 
-let dia = String(dataObj.getDate()).padStart(2, '0');
-let mes = String(dataObj.getMonth() + 1).padStart(2, '0');
-let horas = String(dataObj.getHours()).padStart(2, '0');
-let minutos = String(dataObj.getMinutes()).padStart(2, '0');
-
-let dataFormatada = `${dia}/${mes}`;
-let horarioFormatado = `${horas}:${minutos}`;
-
-document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
                 let temp = pedido.template.card.replace(/\${idpedido}/g, e.idpedido)
                     .replace(/\${btnAcoes}/g, btnAcoes)
                     .replace(/\${acoes}/g, acoesFinal)
