@@ -271,20 +271,31 @@ pedido.method = {
     // carrega os dados da modal de detalhes
     carregarModalDetalhes: (data, idpedido, cart) => {
 
-        let datacadastro = data.datacadastro.split('T');
-        let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
-        let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];
+    let dataFormatada = '';
+    let horarioFormatado = '';
+    try {
+        if (data && data.datacadastro) {
+            let dataObj = new Date(data.datacadastro);
+            dataFormatada = dataObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            horarioFormatado = dataObj.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false });
+        } else {
+            dataFormatada = '-';
+            horarioFormatado = '--:--';
+        }
+    } catch (e) {
+        dataFormatada = '-';
+        horarioFormatado = '--:--';
+    }
+    document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
 
-        document.querySelector("#lblDataHora").innerText = `Recebido em ${dataFormatada} às ${horarioFormatado}`;
+    document.querySelector("#lblNomeCliente").innerText = data.nomecliente;
+    document.querySelector("#lblTelefoneCliente").innerText = data.telefonecliente;
 
-        document.querySelector("#lblNomeCliente").innerText = data.nomecliente;
-        document.querySelector("#lblTelefoneCliente").innerText = data.telefonecliente;
+    document.querySelector("#lblTipoEntrega").innerHTML = data.idtipoentrega == 1 ? `<i class="fas fa-motorcycle"></i> Entrega` : '<i class="fas fa-box"></i> Retirada'
 
-        document.querySelector("#lblTipoEntrega").innerHTML = data.idtipoentrega == 1 ? `<i class="fas fa-motorcycle"></i> Entrega` : '<i class="fas fa-box"></i> Retirada'
-
-        document.querySelector("#lblFormaPagamentoTitulo").innerText = data.formapagamento;
-        document.querySelector("#lblFormaPagamentoDescricao").innerText = 'Pagamento na entrega do pedido';
-
+    document.querySelector("#lblFormaPagamentoTitulo").innerText = data.formapagamento;
+    document.querySelector("#lblFormaPagamentoDescricao").innerText = 'Pagamento na entrega do pedido';
+                    }
         if (data.idformapagamento == 1) {
             document.querySelector("#lblFormaPagamentoIcon").innerHTML = '<i class="fas fa-receipt"></i>';
         }
