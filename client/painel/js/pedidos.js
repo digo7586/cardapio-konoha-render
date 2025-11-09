@@ -176,12 +176,12 @@ pedido.method = {
                 let dataFormatada = datacadastro[0].split('-')[2] + '/' + datacadastro[0].split('-')[1];
                 let horarioFormatado = datacadastro[1].split(':')[0] + ':' + datacadastro[1].split(':')[1];*/
 
-        let dataFormatada = '-';
+let dataFormatada = '-';
 let horarioFormatado = '--:--';
 try {
-    if (e && e.datacadastro) { // Ou data && data.datacadastro conforme contexto
-        let dt = new Date(e.datacadastro); // Ou data.datacadastro no modal
-        // Remova qualquer ajuste manual de hora!
+    if (data && data.datacadastro) {
+        let dt = new Date(data.datacadastro);
+        dt.setHours(dt.getHours() - 3);
         dataFormatada = dt.toLocaleDateString('pt-BR');
         horarioFormatado = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
@@ -189,6 +189,7 @@ try {
     dataFormatada = '-';
     horarioFormatado = '--:--';
 }
+
 
 datahora = `${dataFormatada} às ${horarioFormatado}`;
 
@@ -295,9 +296,9 @@ datahora = `${dataFormatada} às ${horarioFormatado}`;
         let dataFormatada = '-';
 let horarioFormatado = '--:--';
 try {
-    if (e && e.datacadastro) { // Ou data && data.datacadastro conforme contexto
-        let dt = new Date(e.datacadastro); // Ou data.datacadastro no modal
-        // Remova qualquer ajuste manual de hora!
+    if (data && data.datacadastro) {
+        let dt = new Date(data.datacadastro);
+        dt.setHours(dt.getHours() - 3);
         dataFormatada = dt.toLocaleDateString('pt-BR');
         horarioFormatado = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
