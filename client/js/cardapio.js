@@ -168,39 +168,34 @@ cardapio.method = {
 
     // carrega os produtos na tela
     carregarProdutos: (list) => {
+    if (list.length > 0) {
+        list.forEach((e, i) => {
+            let _imagem = e.imagem;
+            if (e.imagem == null) {
+                _imagem = 'default.jpg';
+            }
+            const precoNum = Number(e.valor);
+            const precoFmt = Number.isFinite(precoNum) ? precoNum.toFixed(2).replace('.', ',') : '0,00';
 
-        if (list.length > 0) {
+            // Limita descrição
+            let descCorta = typeof e.descricao === "string" && e.descricao.length > 45
+                ? e.descricao.slice(0, 45) + "..."
+                : (e.descricao || "");
 
-            list.forEach((e, i) => {
-
-                let _imagem = e.imagem;
-
-                if (e.imagem == null) {
-                    _imagem = 'default.jpg';
-                }
-
-               const precoNum = Number(e.valor);
-const precoFmt = Number.isFinite(precoNum) ? precoNum.toFixed(2).replace('.', ',') : '0,00';
-
-                let temp = cardapio.templates.produto.replace(/\${idproduto}/g, e.idproduto)
+            let temp = cardapio.templates.produto.replace(/\${idproduto}/g, e.idproduto)
                 .replace(/\${imagem}/g, _imagem)
                 .replace(/\${nome}/g, e.nome || '')
-                .replace(/\${descricao}/g, e.descricao || '')
+                .replace(/\${descricao}/g, descCorta)
                 .replace(/\${valor}/g, precoFmt);
 
+            let categoriaHeader = document.querySelector("#categoria-header-" + e.idcategoria);
+            if (categoriaHeader) {
+                categoriaHeader.innerHTML += temp;
+            }
+        });
+    }
+},
 
-                // adiciona a categoria ao menu
-                let categoriaHeader = document.querySelector("#categoria-header-" + e.idcategoria);
-                if (categoriaHeader) {
-                    categoriaHeader.innerHTML += temp;
-                }
-
-
-            });
-
-        }
-
-    },
 
     // método para abrir os detalhes do produto
     abrirProduto: (id) => {
