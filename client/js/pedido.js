@@ -60,6 +60,8 @@ pedido.method = {
                     document.querySelector("#containerAcompanhamento").innerHTML = '';
 
                     let datacadastro = new Date(response.data.datacadastro); // Ideal: deve vir com "-03:00" no fim!
+                    
+// use dataFormatada no card e nos detalhes
                     let dataFormatada = datacadastro.getDate().toString().padStart(2, '0') + '/' + (datacadastro.getMonth() + 1).toString().padStart(2, '0');
                     let horarioFormatado = datacadastro.getHours().toString().padStart(2, '0') + ':' + datacadastro.getMinutes().toString().padStart(2, '0');
 
