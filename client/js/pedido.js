@@ -16,7 +16,7 @@ pedido.event = {
         pedido.method.obterUltimoPedido();
         setInterval(() => {
             pedido.method.obterUltimoPedido();
-        }, 15000);
+        }, 3000);
 
         pedido.method.obterItensCarrinho();
 
