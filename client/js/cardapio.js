@@ -178,8 +178,8 @@ cardapio.method = {
             const precoFmt = Number.isFinite(precoNum) ? precoNum.toFixed(2).replace('.', ',') : '0,00';
 
             // Limita descrição
-            let descCorta = typeof e.descricao === "string" && e.descricao.length > 45
-                ? e.descricao.slice(0, 45) + "..."
+            let descCorta = typeof e.descricao === "string" && e.descricao.length > 59
+                ? e.descricao.slice(0, 59) + "..."
                 : (e.descricao || "");
 
             let temp = cardapio.templates.produto.replace(/\${idproduto}/g, e.idproduto)
